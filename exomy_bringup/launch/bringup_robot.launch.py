@@ -51,4 +51,5 @@ def generate_launch_description():
     ld.add_action(robot_desc_cmd)
     ld.add_action(robot_lowlevel_cmd)
     ld.add_action(arducam_node_cmd)
+    ld.add_action(laserscan_node_cmd)
     return ld

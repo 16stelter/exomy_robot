@@ -1090,7 +1090,7 @@
       joint="pupil_left_joint"/>
   </joint>
   <link
-    name="cam_link">
+    name="camera">
     <inertial>
       <origin
         xyz="-0.00249086473821708 0.000136649009533494 0.000569820673845034"
@@ -1136,7 +1136,7 @@
     <parent
       link="head_link" />
     <child
-      link="cam_link" />
+      link="camera" />
     <axis
       xyz="0 0 0" />
   </joint>
@@ -1414,7 +1414,7 @@
     <material>Gazebo/Gold</material>
   </gazebo>
 
-  <gazebo reference="cam_link">
+  <gazebo reference="camera">
     <mu1>0.2</mu1>
     <mu2>0.2</mu2>
     <material>Gazebo/FlatBlack</material>

@@ -140,7 +140,7 @@ def main(args=None):
     parser = ArgumentParser()
     parser.add_argument("--cfg", type=str, help="Path to camera configuration file")
     
-    ns = parser.parse_args()
+    ns, _ = parser.parse_known_args()
     
     options = Option()
     options.cfg = ns.cfg
