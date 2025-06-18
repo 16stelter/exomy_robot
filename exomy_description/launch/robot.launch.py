@@ -41,6 +41,7 @@ def generate_launch_description():
     declared_arguments = []
     nodes = []
 
+
     declared_arguments.append(
         DeclareLaunchArgument(
             'description_file',
@@ -62,10 +63,18 @@ def generate_launch_description():
             description='Use simulation/Gazebo clock if true',
         )
     )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            'namespace',
+            default_value='',
+            description='Top-level namespace',
+        )
+    )
 
     description_file = LaunchConfiguration('description_file')
     prefix = LaunchConfiguration('prefix')
     use_sim_time = LaunchConfiguration('use_sim_time')
+    namespace = LaunchConfiguration('namespace')
 
     robot_description_content = Command(
         [
@@ -85,6 +94,7 @@ def generate_launch_description():
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
+        namespace=namespace,
         parameters=[{
             'use_sim_time': use_sim_time,
             'robot_description': robot_description_param,
@@ -98,6 +108,7 @@ def generate_launch_description():
         package='joint_state_publisher',
         executable='joint_state_publisher',
         name='joint_state_publisher',
+        namespace=namespace,
         parameters=[
             {'use_gui': False},
             {'use_sim_time': False}
