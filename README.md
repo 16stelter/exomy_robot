@@ -1,4 +1,4 @@
 # exomy_robot
 
-To download submodules, run
-git submodule update --init --recursive
+To download and update submodules, run
+./init_submodules.sh
