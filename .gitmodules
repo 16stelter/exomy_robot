@@ -1,0 +1,3 @@
+[submodule "ExoMy_Software"]
+	path = ExoMy_Software
+	url = git@github.com:16stelter/ExoMy_Software.git
