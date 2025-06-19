@@ -1,30 +1,20 @@
-import os
+import os, yaml
+from tempfile import NamedTemporaryFile
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 
-
-def generate_launch_description():
-    namespace = LaunchConfiguration('namespace')
+def launch_setup(context, *args, **kwargs):
+    params_file = os.path.join(get_package_share_directory('exomy_bringup'), 'params', 'exomy_bringup_params.yaml')
+    namespace = LaunchConfiguration('namespace').perform(context)
+    configured_params = prepend_namespace_to_yaml(params_file, namespace)
+  
     package_dir = get_package_share_directory('exomy_bringup')
     robot_desc_dir = get_package_share_directory('exomy_description')
     robot_lowlevel_dir = get_package_share_directory('exomy')
-    params_file = LaunchConfiguration('params_file')
-
-    declare_bringup_params_cmd = DeclareLaunchArgument(
-        'params_file', default_value=os.path.join(
-            package_dir,
-            'params',
-            'exomy_bringup_params.yaml')
-    )
-
-
-    declare_namespace_cmd = DeclareLaunchArgument(
-        'namespace', default_value='', description='Top-level namespace'
-    )
 
     robot_desc_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -54,14 +44,35 @@ def generate_launch_description():
             ('cloud_in', 'point_cloud'),
             ('scan', 'scan'),
         ],
-        parameters=[LaunchConfiguration('params_file')]
+        parameters=[configured_params]
     )
 
-    ld = LaunchDescription()
-    ld.add_action(declare_namespace_cmd)
-    ld.add_action(declare_bringup_params_cmd)
-    ld.add_action(robot_desc_cmd)
-    ld.add_action(robot_lowlevel_cmd)
-    ld.add_action(arducam_node_cmd)
-    ld.add_action(laserscan_node_cmd)
-    return ld
+    return [robot_desc_cmd, robot_lowlevel_cmd, arducam_node_cmd, laserscan_node_cmd]
+
+def generate_launch_description():
+    declare_namespace_cmd = DeclareLaunchArgument(
+        'namespace', default_value='', description='Top-level namespace'
+    )
+
+    return LaunchDescription([
+        declare_namespace_cmd,
+        OpaqueFunction(function=launch_setup)
+    ])
+
+def prepend_namespace_to_yaml(input_file, namespace):
+    with open(input_file, 'r') as f:
+        data = yaml.safe_load(f)
+
+    namespaced_data = {}
+    for node_name, node_config in data.items():
+        if namespace:
+            namespaced_key = f'/{namespace}/{node_name}'
+        else:
+            namespaced_key = f'/{node_name}'
+        namespaced_data[namespaced_key] = node_config
+
+    tmp_file = NamedTemporaryFile(delete=False, mode='w', suffix='.yaml')
+    yaml.dump(namespaced_data, tmp_file)
+    tmp_file.close()
+
+    return tmp_file.name
