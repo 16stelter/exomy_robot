@@ -44,6 +44,20 @@
     </collision> -->
   </link>
   <link
+    name="base_footprint">
+  </link>
+  <joint
+    name="footprint_joint"
+    type="fixed">
+    <origin
+      xyz="0 0 -0.1"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="base_footprint" />
+  </joint>
+  <link
     name="MRB_link">
     <inertial>
       <origin

@@ -9,8 +9,18 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     namespace = LaunchConfiguration('namespace')
+    package_dir = get_package_share_directory('exomy_bringup')
     robot_desc_dir = get_package_share_directory('exomy_description')
     robot_lowlevel_dir = get_package_share_directory('exomy')
+    params_file = LaunchConfiguration('params_file')
+
+    declare_bringup_params_cmd = DeclareLaunchArgument(
+        'params_file', default_value=os.path.join(
+            package_dir,
+            'params',
+            'exomy_bringup_params.yaml')
+    )
+
 
     declare_namespace_cmd = DeclareLaunchArgument(
         'namespace', default_value='', description='Top-level namespace'
@@ -44,10 +54,12 @@ def generate_launch_description():
             ('cloud_in', 'point_cloud'),
             ('scan', 'scan'),
         ],
+        parameters=[LaunchConfiguration('params_file')]
     )
 
     ld = LaunchDescription()
     ld.add_action(declare_namespace_cmd)
+    ld.add_action(declare_bringup_params_cmd)
     ld.add_action(robot_desc_cmd)
     ld.add_action(robot_lowlevel_cmd)
     ld.add_action(arducam_node_cmd)

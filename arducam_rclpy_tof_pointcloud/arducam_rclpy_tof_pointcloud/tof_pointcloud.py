@@ -92,7 +92,7 @@ class TOFPublisher(Node):
                 depth_buf = frame.depth_data
                 confidence_buf = frame.confidence_data
 
-                depth_buf[confidence_buf < 30] = 0
+                depth_buf[confidence_buf < 50] = 0
 
                 self.depth_msg_.data = depth_buf.flatten() / 1000
 
