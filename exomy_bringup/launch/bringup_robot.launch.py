@@ -23,7 +23,8 @@ def launch_setup(context, *args, **kwargs):
         executable = 'tof_pointcloud',
         name = 'tof_pointcloud',
         namespace = namespace,
-        output = 'screen'
+        output = 'screen',
+        parameters=[{'namespace': namespace}]
     )
 
     laserscan_node_cmd = Node(
@@ -33,7 +34,7 @@ def launch_setup(context, *args, **kwargs):
         namespace = namespace,
         output = 'screen',
         remappings=[
-            ('cloud_in', 'point_cloud'),
+            ('cloud_in', 'pointcloud'),
             ('scan', 'scan'),
         ],
         parameters=[configured_params]
@@ -58,9 +59,12 @@ def prepend_namespace_to_yaml(input_file, namespace):
     namespaced_data = {}
     for node_name, node_config in data.items():
         if namespace:
+            if 'ros__parameters' in node_config and 'target_frame' in node_config['ros__parameters']:
+                node_config['ros__parameters']['target_frame'] = f'{namespace}/{node_config["ros__parameters"]["target_frame"]}'
             namespaced_key = f'/{namespace}/{node_name}'
         else:
             namespaced_key = f'/{node_name}'
+
         namespaced_data[namespaced_key] = node_config
 
     tmp_file = NamedTemporaryFile(delete=False, mode='w', suffix='.yaml')
