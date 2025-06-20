@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
-     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
-     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
 <robot
-  name="exomy_model">
+  name="exomy_model" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="prefix" default=""/>
   <link
-    name="base_link">
+    name="$(arg prefix)base_link">
     <inertial>
       <origin
         xyz="0.0034421728666082 -0.000593582314044209 0.0800225110677588"
@@ -44,21 +42,21 @@
     </collision> -->
   </link>
   <link
-    name="base_footprint">
+    name="$(arg prefix)base_footprint">
   </link>
   <joint
-    name="footprint_joint"
+    name="$(arg prefix)footprint_joint"
     type="fixed">
     <origin
       xyz="0 0 -0.1"
       rpy="0 0 0" />
     <parent
-      link="base_link" />
+      link="$(arg prefix)base_link" />
     <child
-      link="base_footprint" />
+      link="$(arg prefix)base_footprint" />
   </joint>
   <link
-    name="MRB_link">
+    name="$(arg prefix)MRB_link">
     <inertial>
       <origin
         xyz="-4.75494816076468E-06 0.0051724456441953 -0.053203691874464"
@@ -102,9 +100,9 @@
       xyz="-0.082 0 0.017"
       rpy="1.5708 0 1.5708" />
     <parent
-      link="base_link" />
+      link="$(arg prefix)base_link" />
     <child
-      link="MRB_link" />
+      link="$(arg prefix)MRB_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -114,7 +112,7 @@
       velocity="0" />
   </joint>
   <link
-    name="STR_LR_link">
+    name="$(arg prefix)STR_LR_link">
     <inertial>
       <origin
         xyz="-0.0124570291004618 0.000225486285520493 -0.0337605009553561"
@@ -158,9 +156,9 @@
       xyz="0.10378 -0.015418 -0.080775"
       rpy="0 -1.5708 -1.5708" />
     <parent
-      link="MRB_link" />
+      link="$(arg prefix)MRB_link" />
     <child
-      link="STR_LR_link" />
+      link="$(arg prefix)STR_LR_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -170,7 +168,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="DRV_LR_link">
+    name="$(arg prefix)DRV_LR_link">
     <inertial>
       <origin
         xyz="-4.38837843702578E-08 0.000210617627838187 -0.00746718154845782"
@@ -216,9 +214,9 @@
       xyz="0 -0.0023862 -0.057244"
       rpy="-1.5708 0 0" />
     <parent
-      link="STR_LR_link" />
+      link="$(arg prefix)STR_LR_link" />
     <child
-      link="DRV_LR_link" />
+      link="$(arg prefix)DRV_LR_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -226,7 +224,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="STR_RR_link">
+    name="$(arg prefix)STR_RR_link">
     <inertial>
       <origin
         xyz="-0.0124555119207003 -0.000225533347029169 -0.0337608863888986"
@@ -270,9 +268,9 @@
       xyz="-0.103779999964964 -0.0154182000000004 -0.0807754997113281"
       rpy="0 -1.5708 -1.5708" />
     <parent
-      link="MRB_link" />
+      link="$(arg prefix)MRB_link" />
     <child
-      link="STR_RR_link" />
+      link="$(arg prefix)STR_RR_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -282,7 +280,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="DRV_RR_link">
+    name="$(arg prefix)DRV_RR_link">
     <inertial>
       <origin
         xyz="-4.38837843980133E-08 0.000210617627838181 0.00746718154845791"
@@ -328,9 +326,9 @@
       xyz="0 0.00238620000000078 -0.05724350028868"
       rpy="-1.57079634175582 0 0" />
     <parent
-      link="STR_RR_link" />
+      link="$(arg prefix)STR_RR_link" />
     <child
-      link="DRV_RR_link" />
+      link="$(arg prefix)DRV_RR_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -338,7 +336,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="RFB_link">
+    name="$(arg prefix)RFB_link">
     <inertial>
       <origin
         xyz="-8.38457132264075E-05 -0.00628204153226714 -0.0263258310482545"
@@ -382,9 +380,9 @@
       xyz="0.055 -0.0619999999999967 0.017"
       rpy="-1.5707963267949 0 0" />
     <parent
-      link="base_link" />
+      link="$(arg prefix)base_link" />
     <child
-      link="RFB_link" />
+      link="$(arg prefix)RFB_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -394,7 +392,7 @@
       velocity="0" />f
   </joint>
   <link
-    name="STR_RF_link">
+    name="$(arg prefix)STR_RF_link">
     <inertial>
       <origin
         xyz="0.000225535399357379 -0.0124555107840924 -0.0337608839210725"
@@ -438,9 +436,9 @@
       xyz="0.0802349319288146 0.0141448430183208 -0.0417754997113241"
       rpy="1.5707963267949 0 -0.015893290716378" />
     <parent
-      link="RFB_link" />
+      link="$(arg prefix)RFB_link" />
     <child
-      link="STR_RF_link" />
+      link="$(arg prefix)STR_RF_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -450,7 +448,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="DRV_RF_link">
+    name="$(arg prefix)DRV_RF_link">
     <inertial>
       <origin
         xyz="3.39114450861877E-06 0.000210590330311941 0.00746718154845911"
@@ -496,9 +494,9 @@
       xyz="0 0.00238620000000062 -0.05724350028868"
       rpy="-1.5707963267949 0.015893290716378 0" />
     <parent
-      link="STR_RF_link" />
+      link="$(arg prefix)STR_RF_link" />
     <child
-      link="DRV_RF_link" />
+      link="$(arg prefix)DRV_RF_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -506,7 +504,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="STR_RM_link">
+    name="$(arg prefix)STR_RM_link">
     <inertial>
       <origin
         xyz="-0.000225484526532056 -0.0124570290148926 -0.0337605008492651"
@@ -550,9 +548,9 @@
       xyz="-0.0797448607263364 0.0166876624779333 -0.0417754996999998"
       rpy="1.5707963267949 0 -0.0158932907163782" />
     <parent
-      link="RFB_link" />
+      link="$(arg prefix)RFB_link" />
     <child
-      link="STR_RM_link" />
+      link="$(arg prefix)STR_RM_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -562,7 +560,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="DRV_RM_link">
+    name="$(arg prefix)DRV_RM_link">
     <inertial>
       <origin
         xyz="3.39103454103859E-06 0.000210590220343906 0.00746718155160908"
@@ -608,9 +606,9 @@
       xyz="0 0.00238620000000078 -0.05724350028868"
       rpy="-1.57079634175582 0.0158932907163779 0" />
     <parent
-      link="STR_RM_link" />
+      link="$(arg prefix)STR_RM_link" />
     <child
-      link="DRV_RM_link" />
+      link="$(arg prefix)DRV_RM_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -618,7 +616,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="LFB_link">
+    name="$(arg prefix)LFB_link">
     <inertial>
       <origin
         xyz="-1.60029202162099E-05 -0.00628258071143433 0.0263258310443698"
@@ -662,9 +660,9 @@
       xyz="0.055 0.0619999999999967 0.017"
       rpy="-1.5707963267949 0 0" />
     <parent
-      link="base_link" />
+      link="$(arg prefix)base_link" />
     <child
-      link="LFB_link" />
+      link="$(arg prefix)LFB_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -674,7 +672,7 @@
       velocity="0" />
   </joint>
   <link
-    name="STR_LF_link">
+    name="$(arg prefix)STR_LF_link">
     <inertial>
       <origin
         xyz="0.000225486285520132 0.0124570291004614 -0.0337605009553564"
@@ -718,9 +716,9 @@
       xyz="0.0800000000000001 0.0154182000000003 0.041775499700002"
       rpy="1.5707963267949 0 0" />
     <parent
-      link="LFB_link" />
+      link="$(arg prefix)LFB_link" />
     <child
-      link="STR_LF_link" />
+      link="$(arg prefix)STR_LF_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -730,7 +728,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="DRV_LF_link">
+    name="$(arg prefix)DRV_LF_link">
     <inertial>
       <origin
         xyz="-4.38837841065798E-08 0.00021061762783816 -0.00746718154845798"
@@ -776,9 +774,9 @@
       xyz="0 -0.00238620000000062 -0.05724350028868"
       rpy="-1.5707963267949 0 0" />
     <parent
-      link="STR_LF_link" />
+      link="$(arg prefix)STR_LF_link" />
     <child
-      link="DRV_LF_link" />
+      link="$(arg prefix)DRV_LF_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -786,7 +784,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="STR_LM_link">
+    name="$(arg prefix)STR_LM_link">
     <inertial>
       <origin
         xyz="-0.000225533347029273 0.0124555119206989 -0.0337608863888989"
@@ -830,9 +828,9 @@
       xyz="-0.0799999999649664 0.0154182000000003 0.0417754997113218"
       rpy="1.5707963267949 0 0" />
     <parent
-      link="LFB_link" />
+      link="$(arg prefix)LFB_link" />
     <child
-      link="STR_LM_link" />
+      link="$(arg prefix)STR_LM_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -842,7 +840,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="DRV_LM_link">
+    name="$(arg prefix)DRV_LM_link">
     <inertial>
       <origin
         xyz="-4.37738164535406E-08 0.000210617737805917 -0.00746718154535671"
@@ -888,9 +886,9 @@
       xyz="0 -0.00238620000000191 -0.05724350028868"
       rpy="-1.5707963415217 0 0" />
     <parent
-      link="STR_LM_link" />
+      link="$(arg prefix)STR_LM_link" />
     <child
-      link="DRV_LM_link" />
+      link="$(arg prefix)DRV_LM_link" />
     <axis
       xyz="0 0 1" />
     <limit
@@ -898,7 +896,7 @@
       velocity="1.0" />
   </joint>
   <link
-    name="head_link">
+    name="$(arg prefix)head_link">
     <inertial>
       <origin
         xyz="4.0509917286166E-05 0.0108850586865648 0.0292442059611973"
@@ -942,14 +940,14 @@
       xyz="0.0279999999999999 0 0.270280720578923"
       rpy="1.5707963267949 0 1.5707963267949" />
     <parent
-      link="base_link" />
+      link="$(arg prefix)base_link" />
     <child
-      link="head_link" />
+      link="$(arg prefix)head_link" />
     <axis
       xyz="0 0 0" />
   </joint>
   <link
-    name="eyewhite_link">
+    name="$(arg prefix)eyewhite_link">
     <inertial>
       <origin
         xyz="0.0519999879024582 -3.12462373082689E-05 0.000860409568077425"
@@ -993,14 +991,14 @@
       xyz="-0.0520000000000005 0.0230000000000001 0.039"
       rpy="0 0 0" />
     <parent
-      link="head_link" />
+      link="$(arg prefix)head_link" />
     <child
-      link="eyewhite_link" />
+      link="$(arg prefix)eyewhite_link" />
     <axis
       xyz="0 0 0" />
   </joint>
   <link
-    name="pupil_left_link">
+    name="$(arg prefix)pupil_left_link">
     <inertial>
       <origin
         xyz="0 -0.0045 0.000632252497896557"
@@ -1044,14 +1042,14 @@
       xyz="0.104 0 0.002"
       rpy="0 0 0" />
     <parent
-      link="eyewhite_link" />
+      link="$(arg prefix)eyewhite_link" />
     <child
-      link="pupil_left_link" />
+      link="$(arg prefix)pupil_left_link" />
     <axis
       xyz="0 0 1" />
   </joint>
   <link
-    name="pupil_right_link">
+    name="$(arg prefix)pupil_right_link">
     <inertial>
       <origin
         xyz="0 -0.0045 0.000632252497896571"
@@ -1095,16 +1093,16 @@
       xyz="0 0 0.002"
       rpy="0 0 0" />
     <parent
-      link="eyewhite_link" />
+      link="$(arg prefix)eyewhite_link" />
     <child
-      link="pupil_right_link" />
+      link="$(arg prefix)pupil_right_link" />
     <axis
       xyz="0 0 1" />
     <mimic
       joint="pupil_left_joint"/>
   </joint>
   <link
-    name="camera">
+    name="$(arg prefix)camera">
     <inertial>
       <origin
         xyz="-0.00249086473821708 0.000136649009533494 0.000569820673845034"
@@ -1148,14 +1146,14 @@
       xyz="9.42151964158384E-05 0.00215468910946459 0.035"
       rpy="-0.785398 0 3.14159" />
     <parent
-      link="head_link" />
+      link="$(arg prefix)head_link" />
     <child
-      link="camera" />
+      link="$(arg prefix)camera" />
     <axis
       xyz="0 0 0" />
   </joint>
   <link
-    name="hat_link">
+    name="$(arg prefix)hat_link">
     <inertial>
       <origin
         xyz="3.19558159002607E-08 0.0294025205083059 0.0152014899719377"
@@ -1199,14 +1197,14 @@
       xyz="0 -0.001 -0.001"
       rpy="0 0 0" />
     <parent
-      link="head_link" />
+      link="$(arg prefix)head_link" />
     <child
-      link="hat_link" />
+      link="$(arg prefix)hat_link" />
     <axis
       xyz="0 0 0" />
   </joint>
   <link
-    name="bling_link">
+    name="$(arg prefix)bling_link">
     <inertial>
       <origin
         xyz="-0.00941858500730606 0.0608951077495947 0.00842851931350634"
@@ -1251,9 +1249,9 @@
       xyz="0.08 0.0225 0"
       rpy="1.5708 0 1.5708" />
     <parent
-      link="base_link" />
+      link="$(arg prefix)base_link" />
     <child
-      link="bling_link" />
+      link="$(arg prefix)bling_link" />
     <axis
       xyz="0 0 0" />
   </joint>
