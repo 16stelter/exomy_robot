@@ -11,15 +11,7 @@ def launch_setup(context, *args, **kwargs):
     params_file = os.path.join(get_package_share_directory('exomy_bringup'), 'params', 'exomy_bringup_params.yaml')
     namespace = LaunchConfiguration('namespace').perform(context)
     configured_params = prepend_namespace_to_yaml(params_file, namespace)
-  
-    package_dir = get_package_share_directory('exomy_bringup')
-    robot_desc_dir = get_package_share_directory('exomy_description')
     robot_lowlevel_dir = get_package_share_directory('exomy')
-
-    robot_desc_cmd = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(robot_desc_dir, 'launch', 'robot.launch.py')),
-            launch_arguments={'namespace': namespace}.items())
 
     robot_lowlevel_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -47,7 +39,7 @@ def launch_setup(context, *args, **kwargs):
         parameters=[configured_params]
     )
 
-    return [robot_desc_cmd, robot_lowlevel_cmd, arducam_node_cmd, laserscan_node_cmd]
+    return [robot_lowlevel_cmd, arducam_node_cmd, laserscan_node_cmd]
 
 def generate_launch_description():
     declare_namespace_cmd = DeclareLaunchArgument(
