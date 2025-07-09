@@ -12,6 +12,7 @@ def launch_setup(context, *args, **kwargs):
     namespace = LaunchConfiguration('namespace').perform(context)
     configured_params = prepend_namespace_to_yaml(params_file, namespace)
     robot_lowlevel_dir = get_package_share_directory('exomy')
+    robot_desc_dir = get_package_share_directory('exomy_description')
 
     robot_lowlevel_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -27,6 +28,11 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{'namespace': namespace}]
     )
 
+    robot_desc_cmd = IncludeLaunchDescription(
+      PythonLaunchDescriptionSource(
+        os.path.join(robot_desc_dir, 'launch', 'robot.launch.py')),
+        launch_arguments={'namespace': namespace}.items())
+
     laserscan_node_cmd = Node(
         package = 'pointcloud_to_laserscan',
         executable = 'pointcloud_to_laserscan_node',
@@ -40,7 +46,7 @@ def launch_setup(context, *args, **kwargs):
         parameters=[configured_params]
     )
 
-    return [robot_lowlevel_cmd, arducam_node_cmd, laserscan_node_cmd]
+    return [robot_desc_cmd, robot_lowlevel_cmd, arducam_node_cmd, laserscan_node_cmd]
 
 def generate_launch_description():
     declare_namespace_cmd = DeclareLaunchArgument(

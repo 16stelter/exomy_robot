@@ -9,3 +9,7 @@ pointcloud_to_laserscan:
     angle_max: 0.6
     angle_increment: 0.0021816615
 
+rtabmap_odom:
+  ros__parameters:
+    qos: 2
+    guess_frame_id: "base_link"

@@ -3,13 +3,14 @@ from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 from tempfile import NamedTemporaryFile
 
 def launch_setup(context, *args, **kwargs):
-  #params_file = os.path.join(get_package_share_directory('exomy_bringup'), 'params', 'exomy_bringup_params.yaml')
+  params_file = os.path.join(get_package_share_directory('exomy_bringup'), 'params', 'exomy_bringup_params.yaml')
   namespace = LaunchConfiguration('namespace').perform(context)
-  #configured_params = prepend_namespace_to_yaml(params_file, namespace)
+  configured_params = prepend_namespace_to_yaml(params_file, namespace)
   robot_desc_dir = get_package_share_directory('exomy_description')
 
   robot_desc_cmd = IncludeLaunchDescription(
@@ -17,7 +18,19 @@ def launch_setup(context, *args, **kwargs):
         os.path.join(robot_desc_dir, 'launch', 'robot.launch.py')),
         launch_arguments={'namespace': namespace}.items())
   
-  return [robot_desc_cmd]
+  rtabmap_odometry_cmd = Node(
+    package='rtabmap_odom',
+    executable='icp_odometry',
+    name = 'rtabmap_odom',
+    namespace = namespace,
+    output = 'screen',
+    parameters=[configured_params],
+    remappings=[
+      ('/scan', '/empty'),
+      ('/scan_cloud', '/pointcloud')]
+  )
+  
+  return [robot_desc_cmd, rtabmap_odometry_cmd]
 
 def generate_launch_description():
   declare_namespace_cmd = DeclareLaunchArgument(
