@@ -24,7 +24,7 @@ class Option:
 
 
 class TOFPublisher(Node):
-    def __init__(self, options: Option):
+    def __init__(self, margin, options: Option):
         super().__init__("arducam")
         
         namespace = self.declare_parameter('namespace', '').get_parameter_value().string_value
@@ -33,6 +33,7 @@ class TOFPublisher(Node):
             raise Exception("Failed to initialize camera")
 
         self.tof_ = tof
+        self.margin_ = margin
         self.pointsize_ = self.width_ * self.height_
         self.frame_id = "sensor_frame"
         self.depth_msg_ = Float32MultiArray()
@@ -102,9 +103,10 @@ class TOFPublisher(Node):
                 z[z <= 0] = np.nan  # Handling invalid depth values
 
                 # Calculate x and y coordinates
-                u = np.arange(self.width_)
-                v = np.arange(self.height_)
+                u = np.arange(self.margin_, self.width_ - self.margin_)
+                v = np.arange(self.margin_, self.height_ - self.margin_)
                 u, v = np.meshgrid(u, v)
+                z = z[self.margin_:self.height_ - self.margin_, self.margin_:self.width_ - self.margin_]
 
                 # Calculate point cloud coordinates
                 x = (u - self.width_ / 2) * z / self.fx
@@ -140,13 +142,14 @@ def main(args=None):
     rclpy.init(args=args)
     parser = ArgumentParser()
     parser.add_argument("--cfg", type=str, help="Path to camera configuration file")
+    parser.add_argument("--margin", type=int, help="Margin of pixels to be excluded from the pointcloud", default=0)
     
     ns, _ = parser.parse_known_args()
     
     options = Option()
     options.cfg = ns.cfg
     
-    tof_publisher = TOFPublisher(options)
+    tof_publisher = TOFPublisher(ns.margin, options)
 
     rclpy.spin(tof_publisher)
     rclpy.shutdown()

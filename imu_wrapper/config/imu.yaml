@@ -1,0 +1,22 @@
+imu_wrapper:
+  ros__parameters:
+    accel_range: 0 # +- 0: 2g, 1: 4g, 2: 8g, 3: 16g
+    gyro_range: 1 # +- 0: 250dps, 1: 500dps, 2: 1000dps, 3: 2000dps 
+    accel_scale: 16384.0 # LSB/g
+    gyro_scale: 65.5 # LSB/(deg/s)
+    mag_scale: 0.15e-6 # uT/LSB
+
+    gyro_x_offset: 0
+    gyro_y_offset: 0
+    gyro_z_offset: 0a
+
+    accel_x_offset: 0
+    accel_y_offset: 0
+    accel_z_offset: 0
+
+    mag_x_offset: 0
+    mag_y_offset: 0
+    mag_z_offset: 0
+
+    gravity: 9.81
+    
