@@ -8,7 +8,7 @@ imu_wrapper:
 
     gyro_x_offset: 0
     gyro_y_offset: 0
-    gyro_z_offset: 0a
+    gyro_z_offset: 0
 
     accel_x_offset: 0
     accel_y_offset: 0

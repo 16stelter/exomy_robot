@@ -8,6 +8,7 @@ import qwiic_icm20948
 from tf_transformations import quaternion_from_euler
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
+from ahrs.filters import Madgwick
 
 class IMUWrapper(Node):
     def __init__(self):
@@ -74,6 +75,9 @@ class IMUWrapper(Node):
         self.parameters['mag_z_scale'] = self.get_parameter('mag_z_scale').value
 
     def readImu(self):
+        last_time = None
+        q = np.array([1.0, 0.0, 0.0, 0.0]) 
+        madgwick = Madgwick()
         while rclpy.ok():
             if self.imu.dataReady():
                 self.imu.getAgmt()
@@ -101,15 +105,21 @@ class IMUWrapper(Node):
                 my = (float(self.imu.myRaw) - self.parameters["mag_y_offset"]) * self.parameters["mag_scale"] * self.parameters["mag_y_scale"]
                 mz = (float(self.imu.mzRaw) - self.parameters["mag_z_offset"]) * self.parameters["mag_scale"] * self.parameters["mag_z_scale"]
 
-                roll = math.atan2(ay, az)
-                pitch = math.atan2(-ax, math.sqrt(ay**2 + az**2))
+                acc = np.array([ax, ay, az])
+                acc /= np.linalg.norm(acc)
+                gyr = np.array([gx/3, gy/3, gz/3])
+                mag = np.array([mx, -my, mz])
+                mag /= np.linalg.norm(mag)
 
-                mxp = mx * math.cos(pitch) + mz * math.sin(pitch)
-                myp = mx * math.sin(roll) * math.sin(pitch) + my * math.cos(roll) - mz * math.sin(roll) * math.cos(pitch)
-                yaw = math.atan2(myp, mxp)
+                now = self.get_clock().now()
+                if last_time is None:
+                    madgwick.dt = 0.01
+                else:
+                    madgwick.dt = (now - last_time).nanoseconds * 1e-9
+                q = madgwick.updateMARG(q, gyr=gyr, acc=acc, mag=mag)
+                qw, qx, qy, qz = q
+                last_time = now
 
-                qx, qy, qz, qw = quaternion_from_euler(roll, pitch, yaw)
-                
                 self.imu_raw_pub.publish(imu_raw)
                 imu = Imu()
                 imu.header.stamp = self.get_clock().now().to_msg()
