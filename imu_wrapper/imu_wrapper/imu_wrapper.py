@@ -107,8 +107,8 @@ class IMUWrapper(Node):
 
                 acc = np.array([ax, ay, az])
                 acc /= np.linalg.norm(acc)
-                gyr = np.array([gx/3, gy/3, gz/3])
-                mag = np.array([mx, -my, mz])
+                gyr = np.array([gx/3, gy/3, gz/3]) # idk why but this seems to help
+                mag = np.array([mx, -my, -mz]) # y and z axis of the magnetometer are inverted
                 mag /= np.linalg.norm(mag)
 
                 now = self.get_clock().now()
