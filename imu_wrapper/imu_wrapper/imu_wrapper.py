@@ -78,6 +78,14 @@ class IMUWrapper(Node):
         last_time = None
         q = np.array([1.0, 0.0, 0.0, 0.0]) 
         madgwick = Madgwick()
+
+        alpha_acc = 0.2
+        alpha_gyr = 0.2
+        alpha_mag = 0.2
+        filtered_acc = np.array([0.0, 0.0, 0.0])
+        filtered_gyr = np.array([0.0, 0.0, 0.0])
+        filtered_mag = np.array([0.0, 0.0, 0.0])
+
         while rclpy.ok():
             if self.imu.dataReady():
                 self.imu.getAgmt()
@@ -106,17 +114,23 @@ class IMUWrapper(Node):
                 mz = (float(self.imu.mzRaw) - self.parameters["mag_z_offset"]) * self.parameters["mag_scale"] * self.parameters["mag_z_scale"]
 
                 acc = np.array([ax, ay, az])
-                acc /= np.linalg.norm(acc)
+                filtered_acc = alpha_acc * acc + (1 - alpha_acc) * filtered_acc
+                norm_acc = filtered_acc / np.linalg.norm(filtered_acc)
+                #acc /= np.linalg.norm(acc)
                 gyr = np.array([gx/3, gy/3, gz/3]) # idk why but this seems to help
+                filtered_gyr = alpha_gyr * gyr + (1 - alpha_gyr) * filtered_gyr
+                norm_gyr = filtered_gyr
                 mag = np.array([mx, -my, -mz]) # y and z axis of the magnetometer are inverted
-                mag /= np.linalg.norm(mag)
+                filtered_mag = alpha_mag * mag + (1 - alpha_mag) * filtered_mag
+                norm_mag = filtered_mag / np.linalg.norm(filtered_mag)
+                #mag /= np.linalg.norm(mag)
 
                 now = self.get_clock().now()
                 if last_time is None:
                     madgwick.dt = 0.01
                 else:
                     madgwick.dt = (now - last_time).nanoseconds * 1e-9
-                q = madgwick.updateMARG(q, gyr=gyr, acc=acc, mag=mag)
+                q = madgwick.updateMARG(q, gyr=norm_gyr, acc=norm_acc, mag=norm_mag)
                 qw, qx, qy, qz = q
                 last_time = now
 
@@ -124,12 +138,12 @@ class IMUWrapper(Node):
                 imu = Imu()
                 imu.header.stamp = self.get_clock().now().to_msg()
                 imu.header.frame_id = 'imu'
-                imu.linear_acceleration.x = ax
-                imu.linear_acceleration.y = ay
-                imu.linear_acceleration.z = az
-                imu.angular_velocity.x = gx
-                imu.angular_velocity.y = gy
-                imu.angular_velocity.z = gz
+                imu.linear_acceleration.x = filtered_acc[0]
+                imu.linear_acceleration.y = filtered_acc[1]
+                imu.linear_acceleration.z = filtered_acc[2]
+                imu.angular_velocity.x = filtered_gyr[0]
+                imu.angular_velocity.y = filtered_gyr[1]
+                imu.angular_velocity.z = filtered_gyr[2]
                 imu.orientation.x = qx
                 imu.orientation.y = qy
                 imu.orientation.z = qz
