@@ -39,6 +39,15 @@ def launch_setup(context, *args, **kwargs):
         parameters=[configured_imu_params]
     )
 
+    odom_node_cmd = Node(
+        package = 'exomy',
+        executable = 'odometry_node',
+        name = 'odometry_node',
+        namespace = namespace,
+        output = 'screen',
+        parameters=[configured_params]
+    )
+
     robot_desc_cmd = IncludeLaunchDescription(
       PythonLaunchDescriptionSource(
         os.path.join(robot_desc_dir, 'launch', 'robot.launch.py')),
@@ -57,7 +66,7 @@ def launch_setup(context, *args, **kwargs):
         parameters=[configured_params]
     )
 
-    return [robot_desc_cmd, robot_lowlevel_cmd, arducam_node_cmd, laserscan_node_cmd, imu_node_cmd]
+    return [robot_desc_cmd, robot_lowlevel_cmd, arducam_node_cmd, laserscan_node_cmd, imu_node_cmd, odom_node_cmd]
 
 def generate_launch_description():
     declare_namespace_cmd = DeclareLaunchArgument(

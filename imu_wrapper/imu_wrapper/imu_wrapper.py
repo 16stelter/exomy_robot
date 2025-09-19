@@ -77,11 +77,11 @@ class IMUWrapper(Node):
     def readImu(self):
         last_time = None
         q = np.array([1.0, 0.0, 0.0, 0.0]) 
-        madgwick = Madgwick()
+        madgwick = Madgwick(beta=0.9)
 
-        alpha_acc = 0.2
-        alpha_gyr = 0.2
-        alpha_mag = 0.2
+        alpha_acc = 0.005
+        alpha_gyr = 0.005
+        alpha_mag = 0.005
         filtered_acc = np.array([0.0, 0.0, 0.0])
         filtered_gyr = np.array([0.0, 0.0, 0.0])
         filtered_mag = np.array([0.0, 0.0, 0.0])
