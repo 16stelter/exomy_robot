@@ -34,7 +34,7 @@ from launch.substitutions import Command, FindExecutable, LaunchConfiguration, P
 from launch_ros.actions import Node
 import launch_ros.descriptions
 from launch_ros.substitutions import FindPackageShare
-from launch.substitutions import LaunchConfiguration, PythonExpression
+
 
 def generate_launch_description():
 
@@ -45,7 +45,7 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             'description_file',
-            default_value='exomy_model.xacro',
+            default_value='exomy_model.urdf',
             description='URDF/XACRO description file with the robot.',
         )
     )
@@ -72,13 +72,9 @@ def generate_launch_description():
     )
 
     description_file = LaunchConfiguration('description_file')
+    prefix = LaunchConfiguration('prefix')
     use_sim_time = LaunchConfiguration('use_sim_time')
     namespace = LaunchConfiguration('namespace')
-
-    frame_prefix = PythonExpression([
-    "'' if '", LaunchConfiguration('namespace'), "' == '' else '", LaunchConfiguration('namespace'), "/'"
-    ])
-
 
     robot_description_content = Command(
         [
@@ -86,7 +82,7 @@ def generate_launch_description():
             ' ',
             PathJoinSubstitution([FindPackageShare('exomy_description'), 'urdf', description_file]),
             ' ',
-            'prefix:=', frame_prefix
+            'prefix:=', prefix
         ]
     )
 
@@ -103,7 +99,9 @@ def generate_launch_description():
             'use_sim_time': use_sim_time,
             'robot_description': robot_description_param,
             'publish_frequency': 100.0,
+            'frame_prefix': '',
             }],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         )
     )
 
@@ -115,7 +113,8 @@ def generate_launch_description():
         parameters=[
             {'use_gui': False},
             {'use_sim_time': False}
-        ]
+        ],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         )
     )
 

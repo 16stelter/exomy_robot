@@ -25,7 +25,9 @@ def launch_setup(context, *args, **kwargs):
         name = 'tof_pointcloud',
         namespace = namespace,
         output = 'screen',
-        parameters=[{'namespace': namespace}]
+        parameters=[{'namespace': ''},
+                    {'margin_x': 20},
+                    {'margin_y': 10}]
     )
 
     imu_params = os.path.join(get_package_share_directory('imu_wrapper'), 'imu.yaml')
@@ -36,7 +38,8 @@ def launch_setup(context, *args, **kwargs):
         name = 'imu_wrapper',
         namespace = namespace,
         output = 'screen',
-        parameters=[configured_imu_params]
+        parameters=[configured_imu_params],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")]
     )
 
     odom_node_cmd = Node(
@@ -45,7 +48,8 @@ def launch_setup(context, *args, **kwargs):
         name = 'odometry_node',
         namespace = namespace,
         output = 'screen',
-        parameters=[configured_params]
+        parameters=[configured_params],
+        remappings=[("/tf", "tf"), ("/tf_static", "tf_static")]
     )
 
     robot_desc_cmd = IncludeLaunchDescription(
@@ -62,6 +66,8 @@ def launch_setup(context, *args, **kwargs):
         remappings=[
             ('cloud_in', 'pointcloud'),
             ('scan', 'scan'),
+            ('/tf', 'tf'),
+            ('/tf_static', 'tf_static')
         ],
         parameters=[configured_params]
     )

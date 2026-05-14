@@ -2,22 +2,22 @@ imu_wrapper:
   ros__parameters:
     accel_range: 0
     accel_scale: 16384.0
-    accel_x_offset: -503
-    accel_x_scale: -0.49947273472368714
-    accel_y_offset: -881
-    accel_y_scale: -0.4984275018733547
-    accel_z_offset: -319
-    accel_z_scale: 0.4923926371513278
+    accel_x_offset: -88
+    accel_x_scale: -0.4992272105628764
+    accel_y_offset: -366
+    accel_y_scale: -0.5001971339603658
+    accel_z_offset: -204
+    accel_z_scale: 0.4925513821096351
     gravity: 9.81
     gyro_range: 1
     gyro_scale: 65.5
-    gyro_x_offset: -195
-    gyro_y_offset: 0
-    gyro_z_offset: 18
+    gyro_x_offset: -161
+    gyro_y_offset: 5
+    gyro_z_offset: 33
     mag_scale: 0.14960918417195895
-    mag_x_offset: -305
-    mag_x_scale: 0.8709536307961504
-    mag_y_offset: -253
-    mag_y_scale: 1.0010055304172951
-    mag_z_offset: 41
-    mag_z_scale: 1.1725559481743226
+    mag_x_offset: -308
+    mag_x_scale: 1.0380208333333334
+    mag_y_offset: -233
+    mag_y_scale: 0.8787477954144621
+    mag_z_offset: 66
+    mag_z_scale: 1.112786152987158

@@ -41,7 +41,7 @@ class TOFPublisher(Node):
         self.pointsize_ = self.width_ * self.height_
         self.frame_id = "sensor_frame"
         self.depth_msg_ = Float32MultiArray()
-        self.publisher_ = self.create_publisher(PointCloud2, "pointcloud", 10)
+        self.publisher_ = self.create_publisher(PointCloud2, "tof/pointcloud", 10)
         self.publisher_depth_ = self.create_publisher(
             Float32MultiArray, "depth_frame", 10
         )
