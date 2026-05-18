@@ -27,7 +27,7 @@ class TOFPublisher(Node):
     def __init__(self, options: Option):
         super().__init__("arducam")
         
-        namespace = self.declare_parameter('namespace', '').get_parameter_value().string_value
+        namespace = self.get_namespace()
         tof = self.__init_camera(options)
         if tof is None:
             raise Exception("Failed to initialize camera")
@@ -39,7 +39,7 @@ class TOFPublisher(Node):
 
         self.tof_ = tof
         self.pointsize_ = self.width_ * self.height_
-        self.frame_id = "sensor_frame"
+        self.frame_id = f"{namespace}/sensor_frame" if namespace else "sensor_frame"
         self.depth_msg_ = Float32MultiArray()
         self.publisher_ = self.create_publisher(PointCloud2, "tof/pointcloud", 10)
         self.publisher_depth_ = self.create_publisher(

@@ -10,6 +10,7 @@ from ament_index_python.packages import get_package_share_directory
 def launch_setup(context, *args, **kwargs):
     params_file = os.path.join(get_package_share_directory('exomy_bringup'), 'params', 'exomy_bringup_params.yaml')
     namespace = LaunchConfiguration('namespace').perform(context)
+    ns_prefix = f"{namespace}/" if namespace else ""
     configured_params = prepend_namespace_to_yaml(params_file, namespace)
     robot_lowlevel_dir = get_package_share_directory('exomy')
     robot_desc_dir = get_package_share_directory('exomy_description')
@@ -55,7 +56,7 @@ def launch_setup(context, *args, **kwargs):
     robot_desc_cmd = IncludeLaunchDescription(
       PythonLaunchDescriptionSource(
         os.path.join(robot_desc_dir, 'launch', 'robot.launch.py')),
-        launch_arguments={'namespace': namespace}.items())
+        launch_arguments={'namespace': namespace, 'prefix': ns_prefix}.items())
 
     laserscan_node_cmd = Node(
         package = 'pointcloud_to_laserscan',

@@ -82,7 +82,6 @@ def generate_launch_description():
             ' ',
             PathJoinSubstitution([FindPackageShare('exomy_description'), 'urdf', description_file]),
             ' ',
-            'prefix:=', prefix
         ]
     )
 
@@ -99,7 +98,7 @@ def generate_launch_description():
             'use_sim_time': use_sim_time,
             'robot_description': robot_description_param,
             'publish_frequency': 100.0,
-            'frame_prefix': '',
+            'frame_prefix': prefix,
             }],
         remappings=[("/tf", "tf"), ("/tf_static", "tf_static")],
         )

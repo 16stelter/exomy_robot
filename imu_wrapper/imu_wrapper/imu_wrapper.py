@@ -13,6 +13,7 @@ from ahrs.filters import Madgwick
 class IMUWrapper(Node):
     def __init__(self):
         super().__init__('imu_wrapper')
+        self.ns = self.get_namespace()
         self.imu_raw_pub = self.create_publisher(Imu, 'imu_raw', 10)
         self.imu_pub = self.create_publisher(Imu, 'imu', 10)
         self.imu = qwiic_icm20948.QwiicIcm20948()
@@ -91,7 +92,7 @@ class IMUWrapper(Node):
                 self.imu.getAgmt()
                 imu_raw = Imu()
                 imu_raw.header.stamp = self.get_clock().now().to_msg()
-                imu_raw.header.frame_id = 'imu'
+                imu_raw.header.frame_id = f'{self.ns}/imu' if self.ns else 'imu'
                 imu_raw.linear_acceleration.x = float(self.imu.axRaw)
                 imu_raw.linear_acceleration.y = float(self.imu.ayRaw)
                 imu_raw.linear_acceleration.z = float(self.imu.azRaw)
@@ -137,7 +138,7 @@ class IMUWrapper(Node):
                 self.imu_raw_pub.publish(imu_raw)
                 imu = Imu()
                 imu.header.stamp = self.get_clock().now().to_msg()
-                imu.header.frame_id = 'imu'
+                imu.header.frame_id = f'{self.ns}/imu' if self.ns else 'imu'
                 imu.linear_acceleration.x = filtered_acc[0]
                 imu.linear_acceleration.y = filtered_acc[1]
                 imu.linear_acceleration.z = filtered_acc[2]
@@ -152,8 +153,8 @@ class IMUWrapper(Node):
 
                 t = TransformStamped()
                 t.header.stamp = self.get_clock().now().to_msg()
-                t.header.frame_id = 'base_link'
-                t.child_frame_id = 'imu'
+                t.header.frame_id = f'{self.ns}/base_link' if self.ns else 'base_link'
+                t.child_frame_id = f'{self.ns}/imu' if self.ns else 'imu'
                 t.transform.translation.x = 0.0
                 t.transform.translation.y = 0.0
                 t.transform.translation.z = 0.0
