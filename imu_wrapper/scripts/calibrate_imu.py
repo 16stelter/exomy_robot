@@ -31,26 +31,28 @@ print("Starting IMU calibration service for Sunspark ICM 20984.")
 if not imu.connected:
     print("IMU not connected. Aborting.")
     exit()
-imu.begin()
 
 config = {}
 config["imu_wrapper"] = {}
 config["imu_wrapper"]["ros__parameters"] = {}
 
 print("First, choose which ranges to use for the accelerometer and gyroscope.")
-grange = input("Choose accelerometer range (0: +-2g, 1: +-4g, 2: +-8g, 3: +-16g). Default is 0: ")
-arange = input("Choose gyroscope range (0: +-250dps, 1: +-500dps, 2: +-1000dps, 3: +-2000dps). Default is 0: ")
+arange = input("Choose accelerometer range (0: +-2g, 1: +-4g, 2: +-8g, 3: +-16g). Default is 0: ")
+grange = input("Choose gyroscope range (0: +-250dps, 1: +-500dps, 2: +-1000dps, 3: +-2000dps). Default is 0: ")
 if grange not in ['0', '1', '2', '3']:
     grange = 0
 if arange not in ['0', '1', '2', '3']:
     arange = 0
 grange = int(grange)
 arange = int(arange)
+imu.setFullScaleRangeAccel(arange)
+imu.setFullScaleRangeGyro(grange)
+imu.begin()
 
-config["imu_wrapper"]["ros__parameters"]["accel_range"] = grange
-config["imu_wrapper"]["ros__parameters"]["gyro_range"] = arange
-config["imu_wrapper"]["ros__parameters"]["accel_scale"] = ACCEL_SCALES[grange]
-config["imu_wrapper"]["ros__parameters"]["gyro_scale"] = GYRO_SCALES[arange]
+config["imu_wrapper"]["ros__parameters"]["accel_range"] = arange
+config["imu_wrapper"]["ros__parameters"]["gyro_range"] = grange
+config["imu_wrapper"]["ros__parameters"]["accel_scale"] = ACCEL_SCALES[arange]
+config["imu_wrapper"]["ros__parameters"]["gyro_scale"] = GYRO_SCALES[grange]
 config["imu_wrapper"]["ros__parameters"]["mag_scale"] = MAG_SCALES 
 config["imu_wrapper"]["ros__parameters"]["gravity"] = 9.81
 

@@ -1151,6 +1151,12 @@
     <axis
       xyz="0 0 0" />
   </joint>
+  <link name="imu"/>
+    <joint name="imu_joint" type="fixed">
+      <parent link="base_link" />
+      <child link="imu" />
+      <origin rpy="0 0 0" xyz="0 0 0" />
+    </joint>
   <link
     name="hat_link">
     <inertial>

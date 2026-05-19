@@ -5,10 +5,24 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Imu
 import qwiic_icm20948
-from tf_transformations import quaternion_from_euler
-from tf2_ros import TransformBroadcaster
-from geometry_msgs.msg import TransformStamped
 from ahrs.filters import Madgwick
+
+
+def quat_mult(q1, q2):
+    w1, x1, y1, z1 = q1
+    w2, x2, y2, z2 = q2
+    return np.array([
+        w1*w2 - x1*x2 - y1*y2 - z1*z2,
+        w1*x2 + x1*w2 + y1*z2 - z1*y2,
+        w1*y2 - x1*z2 + y1*w2 + z1*x2,
+        w1*z2 + x1*y2 - y1*x2 + z1*w2
+    ])
+
+def quat_inv(q):
+    w, x, y, z = q
+    norm = w*w + x*x + y*y + z*z
+    return np.array([w, -x, -y, -z]) / norm
+
 
 class IMUWrapper(Node):
     def __init__(self):
@@ -23,8 +37,6 @@ class IMUWrapper(Node):
         
         self.parameters = {}
         self.init_params()
-
-        self.tf_broadcaster = TransformBroadcaster(self)
 
         self.imu.setFullScaleRangeAccel(self.parameters['accel_range'])
         self.imu.setFullScaleRangeGyro(self.parameters['gyro_range'])
@@ -87,6 +99,9 @@ class IMUWrapper(Node):
         filtered_gyr = np.array([0.0, 0.0, 0.0])
         filtered_mag = np.array([0.0, 0.0, 0.0])
 
+        q_offset = None
+        startup_counter = 0
+
         while rclpy.ok():
             if self.imu.dataReady():
                 self.imu.getAgmt()
@@ -118,7 +133,7 @@ class IMUWrapper(Node):
                 filtered_acc = alpha_acc * acc + (1 - alpha_acc) * filtered_acc
                 norm_acc = filtered_acc / np.linalg.norm(filtered_acc)
                 #acc /= np.linalg.norm(acc)
-                gyr = np.array([gx/3, gy/3, gz/3]) # idk why but this seems to help
+                gyr = np.array([gx, gy, gz])
                 filtered_gyr = alpha_gyr * gyr + (1 - alpha_gyr) * filtered_gyr
                 norm_gyr = filtered_gyr
                 mag = np.array([mx, -my, -mz]) # y and z axis of the magnetometer are inverted
@@ -132,8 +147,18 @@ class IMUWrapper(Node):
                 else:
                     madgwick.dt = (now - last_time).nanoseconds * 1e-9
                 q = madgwick.updateMARG(q, gyr=norm_gyr, acc=norm_acc, mag=norm_mag)
-                qw, qx, qy, qz = q
+
+                if startup_counter < 200:
+                    startup_counter += 1
+                    continue
+
                 last_time = now
+
+                if q_offset is None:
+                    q_offset = q.copy()
+
+                q_rel = quat_mult(q, quat_inv(q_offset))
+                qw, qx, qy, qz = q_rel
 
                 self.imu_raw_pub.publish(imu_raw)
                 imu = Imu()
@@ -150,22 +175,6 @@ class IMUWrapper(Node):
                 imu.orientation.z = qz
                 imu.orientation.w = qw
                 self.imu_pub.publish(imu)
-
-                t = TransformStamped()
-                t.header.stamp = self.get_clock().now().to_msg()
-                t.header.frame_id = f'{self.ns}/base_link' if self.ns else 'base_link'
-                t.child_frame_id = f'{self.ns}/imu' if self.ns else 'imu'
-                t.transform.translation.x = 0.0
-                t.transform.translation.y = 0.0
-                t.transform.translation.z = 0.0
-                t.transform.rotation.x = qx
-                t.transform.rotation.y = qy
-                t.transform.rotation.z = qz
-                t.transform.rotation.w = qw
-                self.tf_broadcaster.sendTransform(t)
-
-
-
 
 def main(args=None):
     rclpy.init()
