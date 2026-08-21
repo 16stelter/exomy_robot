@@ -2,3 +2,6 @@
 	path = ExoMy_Software
 	url = git@github.com:16stelter/ExoMy_Software.git
 	branch = ros2/foxy
+[submodule "realsense-ros"]
+	path = realsense-ros
+	url = https://github.com/realsenseai/realsense-ros.git
