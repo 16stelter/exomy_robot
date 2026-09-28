@@ -14,9 +14,9 @@ offsets = [0.0] * 9
 scale = [0.0] * 6
 
 # +ax, -ax, +ay, -ay, +az, -az
-a_biases = [sys.float_info.min, sys.float_info.max, sys.float_info.min, sys.float_info.max, sys.float_info.min, sys.float_info.max]
+a_biases = [-sys.float_info.max, sys.float_info.max, -sys.float_info.max, sys.float_info.max, -sys.float_info.max, sys.float_info.max]
 # +mx, -mx, +my, -my, +mz, -mz
-m_biases = [sys.float_info.min, sys.float_info.max, sys.float_info.min, sys.float_info.max, sys.float_info.min, sys.float_info.max]
+m_biases = [-sys.float_info.max, sys.float_info.max, -sys.float_info.max, sys.float_info.max, -sys.float_info.max, sys.float_info.max]
 
 def wait_for_enter():
     global stop_flag
@@ -45,9 +45,10 @@ if arange not in ['0', '1', '2', '3']:
     arange = 0
 grange = int(grange)
 arange = int(arange)
+imu.begin()
 imu.setFullScaleRangeAccel(arange)
 imu.setFullScaleRangeGyro(grange)
-imu.begin()
+
 
 config["imu_wrapper"]["ros__parameters"]["accel_range"] = arange
 config["imu_wrapper"]["ros__parameters"]["gyro_range"] = grange
