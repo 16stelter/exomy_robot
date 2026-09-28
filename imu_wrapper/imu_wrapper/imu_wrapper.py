@@ -51,14 +51,14 @@ class IMUWrapper(Node):
         self.alpha_acc = 0.005
         self.alpha_gyr = 0.005
         self.alpha_mag = 0.005
-        self.filtered_acc = np.array([0.0, 0.0, 0.0])
-        self.filtered_gyr = np.array([0.0, 0.0, 0.0])
-        self.filtered_mag = np.array([0.0, 0.0, 0.0])
+        self.filtered_acc = None
+        self.filtered_gyr = None
+        self.filtered_mag = None
 
         self.q_offset = None
         self.startup_counter = 0
 
-        self.timer = self.create_timer(0.002, self.read_imu)
+        self.timer = self.create_timer(0.02, self.read_imu)
 
     def init_params(self):
         self.declare_parameter('accel_range', 0)
@@ -104,7 +104,7 @@ class IMUWrapper(Node):
         self.declare_parameter('mag_z_scale', 0.0)
         self.parameters['mag_z_scale'] = self.get_parameter('mag_z_scale').value
 
-    def readImu(self):
+    def read_imu(self):
         if not self.imu.dataReady():
             return
 
@@ -134,15 +134,24 @@ class IMUWrapper(Node):
         mz = (float(self.imu.mzRaw) - self.parameters["mag_z_offset"]) * self.parameters["mag_scale"] * self.parameters["mag_z_scale"]
 
         acc = np.array([ax, ay, az])
-        filtered_acc = self.alpha_acc * acc + (1 - self.alpha_acc) * self.filtered_acc
-        norm_acc = filtered_acc / np.linalg.norm(filtered_acc)
+        if self.filtered_acc is None:
+            self.filtered_acc = acc.copy()
+        else:
+            self.filtered_acc = self.alpha_acc * acc + (1 - self.alpha_acc) * self.filtered_acc
+        norm_acc = self.filtered_acc / np.linalg.norm(self.filtered_acc)
         #acc /= np.linalg.norm(acc)
         gyr = np.array([gx, gy, gz])
-        filtered_gyr = self.alpha_gyr * gyr + (1 - self.alpha_gyr) * self.filtered_gyr
-        norm_gyr = filtered_gyr
+        if self.filtered_gyr is None:
+            self.filtered_gyr = gyr.copy()
+        else:
+            self.filtered_gyr = self.alpha_gyr * gyr + (1 - self.alpha_gyr) * self.filtered_gyr
+        norm_gyr = self.filtered_gyr
         mag = np.array([mx, -my, -mz]) # y and z axis of the magnetometer are inverted
-        filtered_mag = self.alpha_mag * mag + (1 - self.alpha_mag) * self.filtered_mag
-        norm_mag = filtered_mag / np.linalg.norm(filtered_mag)
+        if self.filtered_mag is None:
+            self.filtered_mag = mag.copy()
+        else:
+            self.filtered_mag = self.alpha_mag * mag + (1 - self.alpha_mag) * self.filtered_mag
+        norm_mag = self.filtered_mag / np.linalg.norm(self.filtered_mag)
         #mag /= np.linalg.norm(mag)
 
         now = self.get_clock().now()
