@@ -46,17 +46,16 @@ class IMUWrapper(Node):
 
         self.last_time = None
         self.q = np.array([1.0, 0.0, 0.0, 0.0]) 
-        self.madgwick = Madgwick(beta=0.9)
+        self.madgwick = Madgwick(beta=0.05)
 
-        self.alpha_acc = 0.005
-        self.alpha_gyr = 0.005
-        self.alpha_mag = 0.005
+        self.alpha_acc = 0.03
+        self.alpha_gyr = 1.0
+        self.alpha_mag = 0.02
         self.filtered_acc = None
         self.filtered_gyr = None
         self.filtered_mag = None
 
         self.q_offset = None
-        self.startup_counter = 0
 
         self.timer = self.create_timer(0.02, self.read_imu)
 
@@ -156,21 +155,17 @@ class IMUWrapper(Node):
 
         now = self.get_clock().now()
         if self.last_time is None:
-            self.madgwick.Dt = 0.01
+            self.madgwick.Dt = 0.02
         else:
             self.madgwick.Dt = (now - self.last_time).nanoseconds * 1e-9
-        q = self.madgwick.updateMARG(self.q, gyr=norm_gyr, acc=norm_acc, mag=norm_mag, dt=self.madgwick.Dt)
-
-        if self.startup_counter < 200:
-            self.startup_counter += 1
-            return
+        self.q = self.madgwick.updateMARG(self.q, gyr=norm_gyr, acc=norm_acc, mag=norm_mag, dt=self.madgwick.Dt)
 
         self.last_time = now
 
         if self.q_offset is None:
-            self.q_offset = q.copy()
+            self.q_offset = self.q.copy()
 
-        q_rel = quat_mult(q, quat_inv(self.q_offset))
+        q_rel = quat_mult(self.q, quat_inv(self.q_offset))
         qw, qx, qy, qz = q_rel
 
         self.imu_raw_pub.publish(imu_raw)
@@ -195,3 +190,4 @@ def main(args=None):
     rclpy.spin(imu_wrapper)
     imu_wrapper.destroy_node()
     rclpy.shutdown()
+
