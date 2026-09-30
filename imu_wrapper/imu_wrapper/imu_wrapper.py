@@ -7,23 +7,6 @@ from sensor_msgs.msg import Imu
 import qwiic_icm20948
 from ahrs.filters import Madgwick
 
-
-def quat_mult(q1, q2):
-    w1, x1, y1, z1 = q1
-    w2, x2, y2, z2 = q2
-    return np.array([
-        w1*w2 - x1*x2 - y1*y2 - z1*z2,
-        w1*x2 + x1*w2 + y1*z2 - z1*y2,
-        w1*y2 - x1*z2 + y1*w2 + z1*x2,
-        w1*z2 + x1*y2 - y1*x2 + z1*w2
-    ])
-
-def quat_inv(q):
-    w, x, y, z = q
-    norm = w*w + x*x + y*y + z*z
-    return np.array([w, -x, -y, -z]) / norm
-
-
 class IMUWrapper(Node):
     def __init__(self):
         super().__init__('imu_wrapper')
@@ -45,6 +28,7 @@ class IMUWrapper(Node):
         self.imu.setFullScaleRangeGyro(self.parameters['gyro_range'])
 
         self.q = np.array([1.0, 0.0, 0.0, 0.0])
+        self.init_q()
         self.madgwick = Madgwick(beta=0.05)
         self.last_time = None
 
@@ -93,6 +77,39 @@ class IMUWrapper(Node):
         self.parameters['mag_y_scale'] = self.get_parameter('mag_y_scale').value
         self.declare_parameter('mag_z_scale', 0.0)
         self.parameters['mag_z_scale'] = self.get_parameter('mag_z_scale').value
+
+    def init_q(self):
+        acc_samples = []
+        mag_samples = []
+        for _ in range(50):
+            while not self.imu.dataReady():
+                pass
+            self.imu.getAgmt()
+            acc_samples.append([self.imu.axRaw, self.imu.ayRaw, self.imu.azRaw])
+            mag_samples.append([self.imu.mxRaw, -self.imu.myRaw, -self.imu.mzRaw])
+
+        acc = np.mean(acc_samples, axis=0)
+        mag = np.mean(mag_samples, axis=0)
+        ax, ay, az = acc / np.linalg.norm(acc)
+        mx, my, mz = mag / np.linalg.norm(mag)
+        roll = math.atan2(ay, az)
+        pitch = math.atan2(-ax, math.sqrt(ay*ay + az*az))
+        yaw = math.atan2(-my, mx)
+        
+        cy = math.cos(yaw * 0.5)
+        sy = math.sin(yaw * 0.5)
+        cp = math.cos(pitch * 0.5)
+        sp = math.sin(pitch * 0.5)
+        cr = math.cos(roll * 0.5)
+        sr = math.sin(roll * 0.5)
+
+        self.q = np.array([
+            cr*cp*cy + sr*sp*sy,
+            sr*cp*cy - cr*sp*sy,
+            cr*sp*cy + sr*cp*sy,
+            cr*cp*sy - sr*sp*cy
+        ])
+
 
     def read_imu(self):
         if not self.imu.dataReady():
