@@ -9,11 +9,10 @@ from ament_index_python.packages import get_package_share_directory
 from tempfile import NamedTemporaryFile
 
 def launch_setup(context, *args, **kwargs):
-  params_file = os.path.join(get_package_share_directory('exomy_bringup'), 'params', 'exomy_bringup_params.yaml')
   namespace = LaunchConfiguration('namespace').perform(context)
   use_udp_bridge = LaunchConfiguration('udp_bridge').perform(context).lower()
   use_openvins = LaunchConfiguration('use_openvins').perform(context).lower()
-  configured_params = prepend_namespace_to_yaml(params_file, namespace)
+  use_rviz = LaunchConfiguration('rviz').perform(context).lower()
   robot_desc_dir = get_package_share_directory('exomy_description')
 
   udp_bridge_cmd = IncludeLaunchDescription(
@@ -21,7 +20,7 @@ def launch_setup(context, *args, **kwargs):
           os.path.join(get_package_share_directory('udp_bridge'), 'launch', 'udp_bridge.launch.py')),
           launch_arguments={
               'namespace': namespace,
-              'config_file': os.path.join(get_package_share_directory('udp_bridge'), 'config', 'base.yaml')
+              'config_file': 'base.yaml',
           }.items(),
           condition=IfCondition(use_udp_bridge),
   )
@@ -34,18 +33,31 @@ def launch_setup(context, *args, **kwargs):
   )
 
   openvins_cmd = IncludeLaunchDescription(
-      PythonLaunchDescriptionSource(
-          os.path.join(get_package_share_directory('ov_msckf'), 'launch', 'subscribe.launch.py')),
-          launch_arguments={
-              'namespace': namespace,
-              'max_cameras': '1',
-              'rviz_enable': 'false',
-              'config': 'exomy'
-          }.items(),
-          condition=IfCondition(use_openvins),
-    )
+    PythonLaunchDescriptionSource(
+      os.path.join(get_package_share_directory('ov_msckf'), 'launch', 'subscribe.launch.py')),
+    launch_arguments={
+    'namespace': namespace,
+    'max_cameras': '1',
+    'rviz_enable': use_rviz,
+    'config_path': os.path.join(get_package_share_directory('exomy_description'), 'config', 'open_vins', 'estimator_config.yaml'),
+    }.items(),
+    condition=IfCondition(use_openvins),
+  )
 
-  return [robot_desc_cmd, udp_bridge_cmd, openvins_cmd]
+  image_transport_cmd = Node(
+    package='image_transport',
+    executable='republish',
+    name='image_republisher',
+    namespace=namespace,
+    parameters=[{'in_transport': 'compressed', 'out_transport': 'raw'}],
+    remappings=[
+      ('in/compressed', '/exomy/camera/color/image_raw/compressed'),
+      ('out', '/exomy/camera/color/image_raw')
+    ],
+    condition=IfCondition(use_udp_bridge),
+  )
+
+  return [robot_desc_cmd, udp_bridge_cmd, openvins_cmd, image_transport_cmd]
 
 def generate_launch_description():
     declare_namespace_cmd = DeclareLaunchArgument(
@@ -60,9 +72,15 @@ def generate_launch_description():
         'use_openvins', default_value='true', description='Whether to launch the OpenVINS node'
     )
 
+    declare_rviz_cmd = DeclareLaunchArgument(
+        'rviz', default_value='false', description='Whether to launch RViz'
+    )
+
     return LaunchDescription([
         declare_namespace_cmd,
         declare_udp_bridge_cmd,
+        declare_use_openvins_cmd,
+        declare_rviz_cmd,
         OpaqueFunction(function=launch_setup)
     ])
 

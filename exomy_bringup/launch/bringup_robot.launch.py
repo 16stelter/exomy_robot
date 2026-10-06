@@ -53,7 +53,7 @@ def launch_setup(context, *args, **kwargs):
         PythonLaunchDescriptionSource(
             os.path.join(get_package_share_directory('realsense2_camera'), 'launch', 'rs_launch.py')),
             launch_arguments={
-                'namespace': namespace,
+                'camera_namespace': namespace,
                 'initial_reset': 'true',
                 'enable_gyro': 'true',
                 'enable_accel': 'true',
@@ -69,7 +69,7 @@ def launch_setup(context, *args, **kwargs):
             os.path.join(get_package_share_directory('udp_bridge'), 'launch', 'udp_bridge.launch.py')),
             launch_arguments={
                 'namespace': namespace,
-                'config_file': os.path.join(get_package_share_directory('udp_bridge'), 'config', 'exomy.yaml')
+                'config_file': 'exomy.yaml',
             }.items(),
             condition=IfCondition(use_udp_bridge),
     )
