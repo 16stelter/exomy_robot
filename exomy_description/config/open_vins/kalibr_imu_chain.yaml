@@ -13,7 +13,7 @@ imu0:
   model: calibrated
   rostopic: /exomy/camera/imu
   time_offset: 0.0
-  update_rate: 160.0
+  update_rate: 200.0
 
   Tw:
     - [ 1.0, 0.0, 0.0 ]
