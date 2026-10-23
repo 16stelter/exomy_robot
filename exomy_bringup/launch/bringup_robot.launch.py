@@ -79,7 +79,25 @@ def launch_setup(context, *args, **kwargs):
         os.path.join(robot_desc_dir, 'launch', 'robot.launch.py')),
         launch_arguments={'namespace': namespace, 'prefix': ns_prefix}.items())
 
-    return [robot_desc_cmd, robot_lowlevel_cmd, arducam_node_cmd, imu_node_cmd, realsense_cmd, udp_bridge_cmd]
+    odom_cmd = Node(
+        package='exomy',
+        executable='odometry_node',
+        name='odometry_node',
+        namespace=namespace,
+        output='screen',
+        parameters=[{'namespace': namespace}],
+    )
+
+    control_cmd = Node(
+        package='control',
+        executable='purepursuit',
+        name='purepursuit',
+        namespace=namespace,
+        output='screen',
+        parameters=[{'namespace': namespace}],
+    )
+
+    return [robot_desc_cmd, robot_lowlevel_cmd, arducam_node_cmd, imu_node_cmd, realsense_cmd, udp_bridge_cmd, odom_cmd, control_cmd]
 
 def generate_launch_description():
     declare_namespace_cmd = DeclareLaunchArgument(
